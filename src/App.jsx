@@ -3,17 +3,16 @@ import { useState, useEffect, useRef } from "react";
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  CONFIG — edit these before deploying
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-const TEST_MODE = true;
+const TEST_MODE = false;
 const BIRTHDAY = new Date("2026-07-22T00:00:00");
 const HER_NAME = "Eni";
 const TYPING_MSG = "Happy Birthday to the most beautiful soul I've ever known...";
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  BACKGROUND MUSIC
-//  Drop a .mp3 into /public/ and set the path below
-//  e.g. "/audio/song.mp3"
+//  Drop a .mp3 into /public/audio/ and set the path below
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-const MUSIC_SRC = "/audio/song.mp3"; // ← replace with your song path
+const MUSIC_SRC = "/audio/song.mp3";
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  MEMORY SPREADS
@@ -29,7 +28,7 @@ const SPREADS = [
     type: "video",
     src: "/images/memory2.mp4",
     date: "📍 Lekki  •  December 2025",
-    caption: "You definitely didn’t enjoy the house music that much 😭 but somehow that night on the island still became one of my favorite memories with you.",
+    caption: "You definitely didn't enjoy the house music that much 😭 but somehow that night on the island still became one of my favorite memories with you.",
   },
   {
     type: "image",
@@ -53,7 +52,7 @@ const SPREADS = [
     type: "image",
     src: "/images/memory6.jpeg",
     date: "📍 Ikeja GRA  •  April 2026",
-    caption: "That dessert date was dangerously sweet… and honestly, I still don’t think I got enough of you that day 😂.",
+    caption: "That dessert date was dangerously sweet… and honestly, I still don't think I got enough of you that day 😂.",
   },
   {
     type: "image",
@@ -65,7 +64,7 @@ const SPREADS = [
     type: "image",
     src: null,
     date: "📍 Every place  •  Every moment",
-    caption: "I left this one blank because I’m still looking forward to all the beautiful memories we haven’t made yet. I love you loads iyawo eh ❤️",
+    caption: "I left this one blank because I'm still looking forward to all the beautiful memories we haven't made yet. I love you loads iyawo eh ❤️",
   },
 ];
 
@@ -80,10 +79,8 @@ const PARTICLES = Array.from({ length: 20 }, (_, i) => ({
   sz: `${(1.5 + (i * 0.18) % 2).toFixed(1)}px`,
 }));
 
-// confetti colours
 const CONFETTI_COLORS = ["#c9956c", "#f7f2e7", "#e8a598", "#d4b896", "#f0c080", "#e07070", "#a0c8e0"];
 
-// balloons data — fixed so they don't re-randomise on re-render
 const BALLOONS = Array.from({ length: 8 }, (_, i) => ({
   left: `${((i * 12.5 + 4) % 95).toFixed(0)}%`,
   dur: `${(7 + (i * 1.3) % 5).toFixed(1)}s`,
@@ -119,7 +116,6 @@ function isDirectVideoUrl(src) {
   return typeof src === "string" && /\.(mp4|webm|mov|ogg)(?:\?|$)/i.test(src);
 }
 
-// ── Confetti canvas component
 function Confetti() {
   const canvasRef = useRef(null);
   useEffect(() => {
@@ -170,12 +166,7 @@ function Confetti() {
     return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", onResize); };
   }, []);
 
-  return (
-    <canvas
-      ref={canvasRef}
-      style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 10 }}
-    />
-  );
+  return <canvas ref={canvasRef} style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 10 }} />;
 }
 
 export default function App() {
@@ -190,22 +181,17 @@ export default function App() {
   const audioRef = useRef(null);
   const musicStarted = useRef(false);
 
-  // ── Music: try autoplay immediately, fall back to first interaction
+  // ── Music
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
     audio.volume = 0.45;
     audio.loop = true;
-
     const tryPlay = () => {
       if (musicStarted.current) return;
       audio.play().then(() => { musicStarted.current = true; }).catch(() => {});
     };
-
-    // try straight away (works on some browsers / if page was interacted with)
     tryPlay();
-
-    // also hook first user interaction as fallback
     const onInteract = () => { tryPlay(); };
     window.addEventListener("click", onInteract, { once: true });
     window.addEventListener("touchstart", onInteract, { once: true });
@@ -221,18 +207,11 @@ export default function App() {
   useEffect(() => {
     if (scene !== "countdown") return;
     if (TEST_MODE) {
-      if (testSecs <= 0) {
-        const t = setTimeout(() => setScene("typing"), 700);
-        return () => clearTimeout(t);
-      }
+      if (testSecs <= 0) { const t = setTimeout(() => setScene("typing"), 700); return () => clearTimeout(t); }
       const t = setTimeout(() => setTestSecs((s) => s - 1), 1000);
       return () => clearTimeout(t);
     } else {
-      const tick = () => {
-        const rt = getRealCountdown();
-        if (!rt) { setScene("typing"); return; }
-        setRealTime(rt);
-      };
+      const tick = () => { const rt = getRealCountdown(); if (!rt) { setScene("typing"); return; } setRealTime(rt); };
       tick();
       const t = setInterval(tick, 1000);
       return () => clearInterval(t);
@@ -276,9 +255,7 @@ export default function App() {
     <div style={{ width: "100vw", height: "100vh", background: "#0d0806", overflow: "hidden", position: "relative" }}>
       <style>{STYLES}</style>
       <div className="grain" />
-
-      {/* hidden audio element */}
-      <audio ref={audioRef} src={MUSIC_SRC} preload="auto" autoPlay />
+      <audio ref={audioRef} src={MUSIC_SRC} preload="auto" />
 
       {/* ── COUNTDOWN */}
       {scene === "countdown" && (
@@ -292,7 +269,7 @@ export default function App() {
               <div key={testSecs} className="cd-num">{testSecs}</div>
             ) : realTime ? (
               <div className="cd-real">
-                {[["d", realTime.d], ["h", realTime.h], ["m", realTime.m], ["s", realTime.s]].map(([unit, val]) => (
+                {[["d", realTime.d], ["h", realTime.h], ["m", realTime.m]].map(([unit, val]) => (
                   <div key={unit} className="cd-unit">
                     <div className="cd-digit">{String(val).padStart(2, "0")}</div>
                     <div className="cd-unit-label">{unit}</div>
@@ -305,25 +282,12 @@ export default function App() {
         </div>
       )}
 
-      {/* ── TYPING — with confetti + balloons */}
+      {/* ── TYPING */}
       {scene === "typing" && (
         <div className="scene fade-in" style={{ overflow: "hidden" }}>
-
-          {/* confetti canvas */}
           <Confetti />
-
-          {/* balloons */}
           {BALLOONS.map((b, i) => (
-            <div
-              key={i}
-              className="balloon"
-              style={{
-                left: b.left,
-                animationDuration: b.dur,
-                animationDelay: b.delay,
-                "--sway": b.sway,
-              }}
-            >
+            <div key={i} className="balloon" style={{ left: b.left, animationDuration: b.dur, animationDelay: b.delay, "--sway": b.sway }}>
               <svg width={b.size} viewBox="0 0 40 55" xmlns="http://www.w3.org/2000/svg">
                 <ellipse cx="20" cy="20" rx="16" ry="19" fill={b.color} opacity="0.88" />
                 <ellipse cx="14" cy="14" rx="5" ry="4" fill="white" opacity="0.22" transform="rotate(-20 14 14)" />
@@ -332,7 +296,6 @@ export default function App() {
               </svg>
             </div>
           ))}
-
           <div className="ty-wrap" style={{ position: "relative", zIndex: 20 }}>
             <div className="ty-text">
               {typed}
@@ -371,57 +334,67 @@ export default function App() {
       {scene === "book" && (
         <div className="scene fade-in" style={{ background: "radial-gradient(ellipse at 50% 40%, #1c0f09 0%, #0d0806 70%)" }}>
           <div className="bk-outer">
-            <button className="nav-btn" onClick={goPrev} disabled={si === 0 || flipping}>‹</button>
+            <div className="bk-persp">
 
-            <div>
-              <div className="bk-persp">
-                {si < SPREADS.length - 1 && (
-                  <div className="book-spread" style={{ position: "absolute", inset: 0, zIndex: 1 }}>
-                    <div className="page pg-left">
-                      <MediaBox spread={SPREADS[si + 1]} n={si + 1} />
-                      <span className="pg-num pn-l">{(si + 1) * 2 + 1}</span>
-                    </div>
-                    <div className="page pg-right">
-                      <JournalBox data={SPREADS[si + 1]} />
-                      <span className="pg-num pn-r">{(si + 1) * 2 + 2}</span>
-                    </div>
-                  </div>
-                )}
-
-                <div className="book-spread" style={{ position: "absolute", inset: 0, zIndex: 2 }}>
+              {/* next spread underneath */}
+              {si < SPREADS.length - 1 && (
+                <div className="book-spread" style={{ position: "absolute", inset: 0, zIndex: 1 }}>
                   <div className="page pg-left">
-                    <MediaBox spread={SPREADS[si]} n={si} />
-                    <span className="pg-num pn-l">{si * 2 + 1}</span>
+                    <MediaBox spread={SPREADS[si + 1]} n={si + 1} />
+                    <span className="pg-num pn-l">{(si + 1) * 2 + 1}</span>
                   </div>
-                  <div className="page pg-right" style={{ visibility: flipping ? "hidden" : "visible" }}>
-                    <JournalBox data={SPREADS[si]} />
-                    <span className="pg-num pn-r">{si * 2 + 2}</span>
+                  <div className="page pg-right">
+                    <JournalBox data={SPREADS[si + 1]} />
+                    <span className="pg-num pn-r">{(si + 1) * 2 + 2}</span>
                   </div>
                 </div>
+              )}
 
-                {flipping && (
-                  <div className="flip-wrap" style={{ zIndex: 5 }}>
-                    <div className="flip-face ff-front page pg-right">
-                      <JournalBox data={SPREADS[si]} />
-                    </div>
-                    <div className="flip-face ff-back page pg-left">
-                      <MediaBox spread={SPREADS[si + 1]} n={si + 1} />
-                    </div>
-                  </div>
-                )}
-                <div className="spine-shadow" />
+              {/* current spread */}
+              <div className="book-spread" style={{ position: "absolute", inset: 0, zIndex: 2 }}>
+                <div className="page pg-left">
+                  <MediaBox spread={SPREADS[si]} n={si} />
+                  <span className="pg-num pn-l">{si * 2 + 1}</span>
+                </div>
+                <div className="page pg-right" style={{ visibility: flipping ? "hidden" : "visible" }}>
+                  <JournalBox data={SPREADS[si]} />
+                  <span className="pg-num pn-r">{si * 2 + 2}</span>
+                </div>
               </div>
 
+              {/* flip animation */}
+              {flipping && (
+                <div className="flip-wrap" style={{ zIndex: 5 }}>
+                  <div className="flip-face ff-front page pg-right"><JournalBox data={SPREADS[si]} /></div>
+                  <div className="flip-face ff-back page pg-left"><MediaBox spread={SPREADS[si + 1]} n={si + 1} /></div>
+                </div>
+              )}
+
+              <div className="spine-shadow" />
+
+              {/* ── BUTTONS OVERLAID ON THE BOOK ── */}
+              <button
+                className="book-btn book-btn-prev"
+                onClick={goPrev}
+                disabled={si === 0 || flipping}
+              >
+                ‹
+              </button>
+              <button
+                className="book-btn book-btn-next"
+                onClick={goNext}
+                disabled={flipping}
+              >
+                {si === SPREADS.length - 1 ? "✓" : "›"}
+              </button>
+
+              {/* progress dots overlaid at bottom center */}
               <div className="dots-row">
                 {SPREADS.map((_, i) => (
                   <div key={i} className={`dot ${i === si ? "dot-on" : ""}`} />
                 ))}
               </div>
             </div>
-
-            <button className="nav-btn" onClick={goNext} disabled={flipping}>
-              {si === SPREADS.length - 1 ? "✓" : "›"}
-            </button>
           </div>
         </div>
       )}
@@ -523,8 +496,7 @@ const STYLES = `
 
 /* ─── BALLOONS ───────────────────────────────── */
 .balloon {
-  position: absolute;
-  bottom: -80px;
+  position: absolute; bottom: -80px;
   animation: balloonRise linear infinite;
   filter: drop-shadow(0 4px 8px rgba(0,0,0,0.25));
 }
@@ -543,21 +515,16 @@ const STYLES = `
   margin-bottom: 1.5rem; opacity: 0.7;
 }
 .cd-num {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(7rem, 22vw, 15rem);
-  color: #f7f2e7; line-height: 1;
-  text-shadow: 0 0 80px rgba(201,149,108,0.28);
+  font-family: 'Playfair Display', serif; font-size: clamp(7rem, 22vw, 15rem);
+  color: #f7f2e7; line-height: 1; text-shadow: 0 0 80px rgba(201,149,108,0.28);
   animation: popIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 @keyframes popIn { from { transform: scale(1.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-.cd-real {
-  display: flex; gap: clamp(1rem, 3vw, 2.5rem); justify-content: center; margin-bottom: 0.5rem;
-}
+.cd-real { display: flex; gap: clamp(1rem, 3vw, 2.5rem); justify-content: center; margin-bottom: 0.5rem; }
 .cd-unit { display: flex; flex-direction: column; align-items: center; gap: 0.4rem; }
 .cd-digit {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(2.5rem, 8vw, 5.5rem); color: #f7f2e7; line-height: 1;
-  text-shadow: 0 0 40px rgba(201,149,108,0.25);
+  font-family: 'Playfair Display', serif; font-size: clamp(2.5rem, 8vw, 5.5rem);
+  color: #f7f2e7; line-height: 1; text-shadow: 0 0 40px rgba(201,149,108,0.25);
 }
 .cd-unit-label {
   font-family: 'Cormorant Garamond', serif; font-size: clamp(0.6rem, 1.2vw, 0.75rem);
@@ -593,19 +560,10 @@ const STYLES = `
   cursor: pointer; transition: transform 0.3s;
 }
 .front-cover:hover { transform: rotate(1deg) scale(1.03); }
-.fc-inner {
-  text-align: center; padding: 1.2rem;
-  display: flex; flex-direction: column; gap: 0.8rem; align-items: center;
-}
+.fc-inner { text-align: center; padding: 1.2rem; display: flex; flex-direction: column; gap: 0.8rem; align-items: center; }
 .heart-wrap { position: relative; display: flex; align-items: center; justify-content: center; }
-.heart-svg {
-  width: clamp(110px, 18vw, 155px); height: auto;
-  filter: drop-shadow(0 0 6px rgba(201,149,108,0.2));
-}
-.heart-text {
-  position: absolute; text-align: center;
-  width: 72%; top: 44%; transform: translateY(-50%);
-}
+.heart-svg { width: clamp(110px, 18vw, 155px); height: auto; filter: drop-shadow(0 0 6px rgba(201,149,108,0.2)); }
+.heart-text { position: absolute; text-align: center; width: 72%; top: 44%; transform: translateY(-50%); }
 .fc-title {
   font-family: 'Cormorant Garamond', serif; font-style: italic;
   font-size: clamp(0.72rem, 1.8vw, 0.95rem);
@@ -624,11 +582,11 @@ const STYLES = `
 }
 
 /* ─── BOOK ───────────────────────────────────── */
-.bk-outer { display: flex; align-items: center; gap: clamp(0.7rem, 2.5vw, 2rem); }
+.bk-outer { display: flex; align-items: center; justify-content: center; width: 100%; }
 
 .bk-persp {
   position: relative;
-  width: min(700px, 90vw);
+  width: min(700px, 96vw);
   height: min(450px, 58vw);
   min-height: 260px;
   perspective: 2000px;
@@ -656,12 +614,37 @@ const STYLES = `
   pointer-events: none; z-index: 10;
 }
 
+/* ─── BOOK BUTTONS — overlaid on corners ──────── */
+.book-btn {
+  position: absolute; bottom: 14px; z-index: 20;
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 1.5px solid rgba(180,140,100,0.55);
+  background: rgba(236,228,208,0.82);
+  color: #7a5535;
+  font-size: 1.25rem; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  backdrop-filter: blur(2px);
+}
+.book-btn:hover:not(:disabled) { background: rgba(236,228,208,1); color: #5a3520; }
+.book-btn:disabled { opacity: 0.2; cursor: default; }
+.book-btn-prev { left: 14px; }
+.book-btn-next { right: 14px; }
+
+/* ─── DOTS — overlaid at bottom center of book ── */
+.dots-row {
+  position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 6px; z-index: 20;
+}
+.dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(130,90,60,0.25); transition: all 0.3s; }
+.dot-on { background: rgba(130,90,60,0.7); transform: scale(1.5); }
+
 /* ─── MEDIA FRAME ─────────────────────────────── */
 .media-frame {
   border: 7px solid #f4efe4;
   box-shadow: 3px 4px 18px rgba(0,0,0,0.25), 0 0 0 1px #cdc3ae;
-  overflow: hidden;
-  background: #1a1a1a;
+  overflow: hidden; background: #1a1a1a;
 }
 .frame-image { width: 90%; max-width: 240px; aspect-ratio: 3/4; }
 .frame-video { width: 90%; max-width: 240px; aspect-ratio: 3/4; }
@@ -682,16 +665,11 @@ const STYLES = `
 /* ─── JOURNAL ─────────────────────────────────── */
 .journal { width: 100%; display: flex; flex-direction: column; height: 100%; justify-content: center; gap: 0.7rem; }
 .j-date {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(0.52rem, 1.2vw, 0.7rem);
+  font-family: 'Cormorant Garamond', serif; font-size: clamp(0.52rem, 1.2vw, 0.7rem);
   letter-spacing: 0.12em; color: #a87050;
   text-transform: uppercase; border-bottom: 1px solid #cec3ab; padding-bottom: 0.6rem;
 }
-.j-cap {
-  font-family: 'Caveat', cursive;
-  font-size: clamp(0.88rem, 2.1vw, 1.18rem);
-  color: #261208; line-height: 1.95;
-}
+.j-cap { font-family: 'Caveat', cursive; font-size: clamp(0.88rem, 2.1vw, 1.18rem); color: #261208; line-height: 1.95; }
 .j-heart { font-family: 'Cormorant Garamond', serif; color: #c9956c; font-size: 1rem; opacity: 0.5; margin-top: auto; padding-top: 0.4rem; }
 
 .pg-num {
@@ -709,23 +687,6 @@ const STYLES = `
 @keyframes doFlip { from { transform: rotateY(0deg); } to { transform: rotateY(-180deg); } }
 .flip-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
 .ff-back { transform: rotateY(180deg); }
-
-/* ─── NAV ─────────────────────────────────────── */
-.nav-btn {
-  width: clamp(40px, 5vw, 46px); height: clamp(40px, 5vw, 46px);
-  border-radius: 50%; border: 1px solid rgba(201,149,108,0.6);
-  background: rgba(201,149,108,0.15); color: #c9956c;
-  font-size: clamp(1.3rem, 2.5vw, 1.4rem); cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: all 0.3s; flex-shrink: 0;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.4);
-}
-.nav-btn:hover:not(:disabled) { background: rgba(201,149,108,0.25); border-color: #c9956c; }
-.nav-btn:disabled { opacity: 0.15; cursor: default; }
-
-.dots-row { display: flex; justify-content: center; gap: 6px; margin-top: 1.2rem; }
-.dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(201,149,108,0.22); transition: all 0.3s; }
-.dot-on { background: #c9956c; transform: scale(1.5); }
 
 /* ─── FINALE ─────────────────────────────────── */
 .fin-wrap {
@@ -755,10 +716,7 @@ const STYLES = `
   max-width: clamp(220px, 40vw, 380px);
 }
 .fin-msg-on { opacity: 1; transform: translateX(0); }
-.fin-writing {
-  font-family: 'Caveat', cursive;
-  font-size: clamp(1.2rem, 3vw, 1.85rem); color: #f7f2e7; line-height: 1.75;
-}
+.fin-writing { font-family: 'Caveat', cursive; font-size: clamp(1.2rem, 3vw, 1.85rem); color: #f7f2e7; line-height: 1.75; }
 .fin-bday {
   font-family: 'Cormorant Garamond', serif; font-style: italic;
   font-size: clamp(1rem, 2.5vw, 1.4rem); color: #c9956c; margin-top: 1rem; letter-spacing: 0.04em;
